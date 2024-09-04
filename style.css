@@ -23,7 +23,10 @@ header h1 {
     gap: 2em;
 }
 
-.letter, .user-letter {
+.box-letter, .box-user-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 120px;
     height: 120px;
     border: 3px solid #000;
@@ -31,7 +34,6 @@ header h1 {
     text-align: center;
 }
 
-
-.user-letter {
-    text-align: center;
+.box-user-letter {
+    cursor: pointer;
 }
