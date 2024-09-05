@@ -1,7 +1,8 @@
 class Term {
-    constructor(letters, boxes) {
+    constructor(letters, boxes, displayLetters) {
         this.letters = letters;
         this.boxes = boxes;
+        this.displayLetters = displayLetters;
 
         this.words = [
             "carro", "cesta", "livro", "porta", "fruta", "folha", "papel", "lápis",
@@ -12,15 +13,12 @@ class Term {
             "torre", "corda", "lapso", "flore", "campo", "texto", "pente", "gripe"
         ];
         this.index = Math.floor(Math.random() * 49);
-        // this.word = this.words[this.index];
-        this.word = 'carro';
-        this.focus = 0;
+        this.word = this.words[this.index];
     }
 
     // Methods
     isFocus(index) {
-        this.boxes[index].style.backgroundColor = 'red';
-
+        this.boxes[index].style.borderBottom = '10px solid #3E3E3E';
     }
 
     isString(e) {
@@ -37,30 +35,63 @@ class Term {
         }
     }
 
+    removeBoxResponse() {
+        let index = this.checkFocus();
+
+            if (this.letters[index].innerText !== '') {
+                this.removeString();
+            } else if (this.letters[index].innerText == '') {
+                this.previousBox();
+                this.removeString();
+            }
+    }
+
     isBoxesFill() {
-        return;
+        let response = '';
+        this.letters.forEach((v, i) => {
+            if (v.innerText === '') {
+                response = false;
+            }
+
+            if (v.innerText != '') {
+                response += v.innerText;
+            }
+        });
+
+        return response;
 
     }
 
     checkWordResponse() {
-        return;
-        
+        let response = this.isBoxesFill();
+
+        if (response != false) {
+            for (let i = 0; i < this.word.length; i++) {
+                if (this.word[i] === response[i]) {
+                    this.displayLetters[i].innerText = response[i]
+                }
+            }
+        }
     }
 
     checkFocus() {
         for (let i = 0; i < this.boxes.length; i++) {
-            if (this.boxes[i].style.backgroundColor === 'red') {
+            if (this.boxes[i].style.borderBottomWidth === '10px') {
                 return i;
             }
         }
     }
 
     removeFocus(index) {
-        this.boxes[index].style.backgroundColor = '';
+        this.boxes[index].style.borderBottom = '';
     }
 
-    removeString(index) {
-        this.letters[index].innerText = '';
+    removeString() {
+        let index = this.checkFocus();
+
+            if (this.letters[index].innerText != '') {
+                this.letters[index].innerText = '';
+            }
     }
 
     nextBox() {
@@ -89,6 +120,19 @@ class Term {
         }
     }
 
+    isWin() {
+        let response = this.isBoxesFill();
+        
+        if (response === this.word) {
+            console.log('you win');
+            
+        }
+    }
+
+    restart() {
+        location.reload();
+    }
+
     pressArrowRight(e) {
         if (e.key === 'ArrowRight') {
             this.nextBox();
@@ -103,21 +147,16 @@ class Term {
 
     pressBackspace(e) {
         if (e.key === 'Backspace') {
-            let index = this.checkFocus();
-
-            if (this.letters[index].innerText != '') {
-                this.letters[index].innerText = '';
-                if (this.letters[index].innerText === '') {
-                    this.previousBox();
-                }
-            }
+            this.removeBoxResponse();
+            
         }
     }
 
     pressEnter(e) {
         if (e.key === 'Enter') {
-            return;
-            
+            this.checkWordResponse();
+            this.isWin();
+
         }
     }
 
