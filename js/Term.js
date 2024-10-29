@@ -1,171 +1,85 @@
 class Term {
-    constructor(letters, boxes, displayLetters) {
-        this.letters = letters;
-        this.boxes = boxes;
-        this.displayLetters = displayLetters;
+  constructor(display) {
+    this.display = display;
+  }
 
-        this.words = [
-            "carro", "cesta", "livro", "porta", "fruta", "folha", "papel", "lápis",
-            "cinto", "treno", "canal", "pedra", "renda", "tigre", "praia", "vento",
-            "luvas", "faixa", "cerve", "salto", "nuvem", "linha", "luzia", "dente",
-            "lente", "mapas", "creme", "farol", "vento", "verde", "couro", "medal",
-            "banco", "quero", "posto", "cerne", "pecas", "fundo", "vezes", "salva",
-            "torre", "corda", "lapso", "flore", "campo", "texto", "pente", "gripe"
-        ];
-        this.index = Math.floor(Math.random() * 49);
-        this.word = this.words[this.index];
-    }
+  whichDisplay() {  // Return the current display index
+    let index;
 
-    // Methods
-    isFocus(index) {
-        this.boxes[index].style.borderBottom = '10px solid #3E3E3E';
-    }
-
-    isString(e) {
-        const strs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        for (let i = 0; i < strs.length; i++) {
-            if (e.key === strs[i]) {
-                let index = this.checkFocus();
-                this.letters[index].innerText = e.key
-                this.nextBox();
-
-
-            }
+    for (let i = 0; i < this.display.length; i++) {
+      for (let j = 0; j < this.display[i].children.length; j++) {
+        if (this.display[i].children[j].innerText == "") {
+          index = i;
+          i = this.display.length - 1;
+          j = this.display[i].children.length - 1;
         }
+      }
     }
 
-    removeBoxResponse() {
-        let index = this.checkFocus();
+    return index;
+  }
 
-            if (this.letters[index].innerText !== '') {
-                this.removeString();
-            } else if (this.letters[index].innerText == '') {
-                this.previousBox();
-                this.removeString();
-            }
+  whichBox () { // Return the current box index
+    let currentDisplay = this.whichDisplay();
+
+    for (let i = 0; i < this.display[currentDisplay].children.length; i++) {
+      if (this.display[currentDisplay].children[i].style.borderBottom == "8px solid rgb(62, 62, 62)") {
+        return i;
+        i = this.display[currentDisplay].children.length - 1;
+      }
     }
+  }
 
-    isBoxesFill() {
-        let response = '';
-        this.letters.forEach((v, i) => {
-            if (v.innerText === '') {
-                response = false;
-            }
+  boxFocus(displayIndex, boxIndex) { // Style the box which is focused
+    this.display[displayIndex].children[boxIndex].style.borderBottom = "8px solid #3e3e3e";
+  }
 
-            if (v.innerText != '') {
-                response += v.innerText;
-            }
-        });
-
-        return response;
-
+  boxUnfocus(displayIndex) { // Unstyle the box which's focused
+    for (let j = 0; j < this.display[displayIndex].children.length; j++) {
+      this.display[displayIndex].children[j].style.borderBottom = "5px solid #3e3e3e";
     }
+  }
 
-    checkWordResponse() {
-        let response = this.isBoxesFill();
+  boxClick() { // Select the box clicked by the user
+    let displayIndex = this.whichDisplay();
 
-        if (response != false) {
-            for (let i = 0; i < this.word.length; i++) {
-                if (this.word[i] === response[i]) {
-                    this.displayLetters[i].innerText = response[i]
-                }
-            }
-        }
+    for (let i = 0; i < this.display[displayIndex].children.length; i++) {
+      this.display[displayIndex].children[i].addEventListener("click", () => {
+        this.boxUnfocus(displayIndex);
+        this.boxFocus(displayIndex, i);
+      });
     }
+  }
 
-    checkFocus() {
-        for (let i = 0; i < this.boxes.length; i++) {
-            if (this.boxes[i].style.borderBottomWidth === '10px') {
-                return i;
-            }
-        }
+  nextBox() { // Go to the next focused box
+    let currentDisplay = this.whichDisplay();
+    let currentBox = this.whichBox();
+
+    this.boxUnfocus(currentDisplay);
+
+    if (currentBox < this.display[currentDisplay].children.length - 1) {
+      this.boxFocus(currentDisplay, currentBox + 1);
+    } else if (currentBox == this.display[currentDisplay].children.length - 1) {
+      this.boxFocus(currentDisplay, currentBox);
     }
+  }
 
-    removeFocus(index) {
-        this.boxes[index].style.borderBottom = '';
+  previousBox() { // Go to the previous focused box
+    let currentDisplay = this.whichDisplay();
+    let currentBox = this.whichBox();
+
+    this.boxUnfocus(currentDisplay);
+
+    if (currentBox > 0 && currentBox <= this.display[currentDisplay].children.length - 1) {
+      this.boxFocus(currentDisplay, currentBox - 1);
+    } else if (currentBox == 0) {
+      this.boxFocus(currentDisplay, 0);
     }
+  }
 
-    removeString() {
-        let index = this.checkFocus();
-
-            if (this.letters[index].innerText != '') {
-                this.letters[index].innerText = '';
-            }
-    }
-
-    nextBox() {
-        let index = this.checkFocus();
-        let nextIndex = index + 1;
-
-        this.removeFocus(index);
-
-        if (nextIndex > 4) {
-            this.isFocus(4);
-        } else if (nextIndex < 5) {
-            this.isFocus(nextIndex);
-        }
-    }
-
-    previousBox() {
-        let index = this.checkFocus();
-        let previousIndex = index - 1;
-
-        this.removeFocus(index);
-
-        if (previousIndex < 0) {
-            this.isFocus(0);
-        } else if (previousIndex < 5) {
-            this.isFocus(previousIndex);
-        }
-    }
-
-    isWin() {
-        let response = this.isBoxesFill();
-        
-        if (response === this.word) {
-            console.log('you win');
-            
-        }
-    }
-
-    restart() {
-        location.reload();
-    }
-
-    pressArrowRight(e) {
-        if (e.key === 'ArrowRight') {
-            this.nextBox();
-        }
-    }
-
-    pressArrowLeft(e) {
-        if (e.key === 'ArrowLeft') {
-            this.previousBox();
-        }
-    }
-
-    pressBackspace(e) {
-        if (e.key === 'Backspace') {
-            this.removeBoxResponse();
-            
-        }
-    }
-
-    pressEnter(e) {
-        if (e.key === 'Enter') {
-            this.checkWordResponse();
-            this.isWin();
-
-        }
-    }
-
-    clickBox(newFocus) {
-        let index = this.checkFocus();
-        this.removeFocus(index);
-        this.isFocus(newFocus);
-    }
-
+  // print() {
+  //   console.log(this.whichBox());
+  // }
 }
 
 export default Term;
