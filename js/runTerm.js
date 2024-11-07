@@ -9,8 +9,20 @@ function runTerm() {
   otherGameButton.addEventListener("click", () => window.location.href = "/index.html");
 
   const term = new Term(displays);
-  // term.print();
+  const words = ["carro", "abaco", "bebem", "folha", "melão", "piano", "nuvem", "sonho", "velho", "festa"];
+  term.guessWord(words);
+  term.print();
+  term.boxFocus(0, 0);
   term.boxClick();
+  document.addEventListener("keydown", e => {
+    term.addLetter(e.key);
+
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key == "Backspace") {
+      term.removeLetter();
+    }
+  });
   document.addEventListener("keydown", e => {
     if (e.key == "ArrowLeft") {
       term.previousBox();

@@ -1,14 +1,25 @@
 class Term {
   constructor(display) {
     this.display = display;
+    this.display.forEach((v) => {
+      v.setAttribute("isCompleted", false);
+    });
+
+    this.word;
   }
 
-  whichDisplay() {  // Return the current display index
+  guessWord(words) { // Get a random word to be the guess word
+    const randomIndex = Math.floor(Math.random() * words.length);
+    this.word = words[randomIndex];
+  }
+
+  whichDisplay() {
+    // Return the current display index
     let index;
 
     for (let i = 0; i < this.display.length; i++) {
       for (let j = 0; j < this.display[i].children.length; j++) {
-        if (this.display[i].children[j].innerText == "") {
+        if (this.display[i].getAttribute("isCompleted") == "false") {
           index = i;
           i = this.display.length - 1;
           j = this.display[i].children.length - 1;
@@ -19,28 +30,37 @@ class Term {
     return index;
   }
 
-  whichBox () { // Return the current box index
+  whichBox() {
+    // Return the current box index
     let currentDisplay = this.whichDisplay();
 
     for (let i = 0; i < this.display[currentDisplay].children.length; i++) {
-      if (this.display[currentDisplay].children[i].style.borderBottom == "8px solid rgb(62, 62, 62)") {
+      if (
+        this.display[currentDisplay].children[i].style.borderBottom ==
+        "8px solid rgb(62, 62, 62)"
+      ) {
         return i;
         i = this.display[currentDisplay].children.length - 1;
       }
     }
   }
 
-  boxFocus(displayIndex, boxIndex) { // Style the box which is focused
-    this.display[displayIndex].children[boxIndex].style.borderBottom = "8px solid #3e3e3e";
+  boxFocus(displayIndex, boxIndex) {
+    // Style the box which is focused
+    this.display[displayIndex].children[boxIndex].style.borderBottom =
+      "8px solid #3e3e3e";
   }
 
-  boxUnfocus(displayIndex) { // Unstyle the box which's focused
+  boxUnfocus(displayIndex) {
+    // Unstyle the box which's focused
     for (let j = 0; j < this.display[displayIndex].children.length; j++) {
-      this.display[displayIndex].children[j].style.borderBottom = "5px solid #3e3e3e";
+      this.display[displayIndex].children[j].style.borderBottom =
+        "5px solid #3e3e3e";
     }
   }
 
-  boxClick() { // Select the box clicked by the user
+  boxClick() {
+    // Select the box clicked by the user
     let displayIndex = this.whichDisplay();
 
     for (let i = 0; i < this.display[displayIndex].children.length; i++) {
@@ -51,7 +71,45 @@ class Term {
     }
   }
 
-  nextBox() { // Go to the next focused box
+  checkChars(e) {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOEPQRSTUVWXYZ";
+
+    for (let i = 0; i < chars.length; i++) {
+      if (e == chars[i]) {
+        i = chars.length - 1;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  addLetter(e) {
+    let displayIndex = this.whichDisplay();
+    let boxIndex = this.whichBox();
+    let isLetter = this.checkChars(e);
+
+    if (isLetter == true) {
+      this.display[displayIndex].children[boxIndex].innerText = e.toUpperCase();
+      this.nextBox();
+    }
+
+  }
+
+  removeLetter() {
+    let displayIndex = this.whichDisplay();
+    let boxIndex = this.whichBox();
+
+    if (this.display[displayIndex].children[boxIndex].innerText != "") {
+      this.display[displayIndex].children[boxIndex].innerText = "";;
+    } else if (this.display[displayIndex].children[boxIndex].innerText == "") {
+      this.previousBox();
+      boxIndex = this.whichBox();
+      this.display[displayIndex].children[boxIndex].innerText = "";
+    }
+  }
+
+  nextBox() {
+    // Go to the next focused box
     let currentDisplay = this.whichDisplay();
     let currentBox = this.whichBox();
 
@@ -64,22 +122,30 @@ class Term {
     }
   }
 
-  previousBox() { // Go to the previous focused box
+  previousBox() {
+    // Go to the previous focused box
     let currentDisplay = this.whichDisplay();
     let currentBox = this.whichBox();
 
     this.boxUnfocus(currentDisplay);
 
-    if (currentBox > 0 && currentBox <= this.display[currentDisplay].children.length - 1) {
+    if (
+      currentBox > 0 &&
+      currentBox <= this.display[currentDisplay].children.length - 1
+    ) {
       this.boxFocus(currentDisplay, currentBox - 1);
     } else if (currentBox == 0) {
       this.boxFocus(currentDisplay, 0);
     }
   }
 
-  // print() {
-  //   console.log(this.whichBox());
-  // }
+  checkGuess() {
+
+  }
+
+  print() {
+    console.log(this.word);
+  }
 }
 
 export default Term;
